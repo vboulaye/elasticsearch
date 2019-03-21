@@ -355,24 +355,24 @@ class BuildPlugin implements Plugin<Project> {
     }
 
     private static String findCompilerJavaHome() {
-        String compilerJavaHome = System.getenv('JAVA_HOME')
-        final String compilerJavaProperty = System.getProperty('compiler.java')
-        if (compilerJavaProperty != null) {
-            compilerJavaHome = findJavaHome(compilerJavaProperty)
-        }
-        if (compilerJavaHome == null) {
-            if (System.getProperty("idea.active") != null || System.getProperty("eclipse.launcher") != null) {
-                // IntelliJ does not set JAVA_HOME, so we use the JDK that Gradle was run with
-                return Jvm.current().javaHome
-            } else {
+        if (System.getProperty("idea.active") != null || System.getProperty("eclipse.launcher") != null) {
+            // IntelliJ does not set JAVA_HOME, so we use the JDK that Gradle was run with
+            return Jvm.current().javaHome
+        } else {
+            String compilerJavaHome = System.getenv('JAVA_HOME')
+            final String compilerJavaProperty = System.getProperty('compiler.java')
+            if (compilerJavaProperty != null) {
+                compilerJavaHome = findJavaHome(compilerJavaProperty)
+            }
+            if (compilerJavaHome == null) {
                 throw new GradleException(
                         "JAVA_HOME must be set to build Elasticsearch. " +
                                 "Note that if the variable was just set you might have to run `./gradlew --stop` for " +
                                 "it to be picked up. See https://github.com/elastic/elasticsearch/issues/31399 details."
                 )
             }
+            return compilerJavaHome
         }
-        return compilerJavaHome
     }
 
     private static String findJavaHome(String version) {
